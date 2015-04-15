@@ -1,5 +1,5 @@
-Yii2 Oci8 Driver extend from Yii1 oci8 extension by yjeroen/oci8Pdo
-===================================================================
+Yii2 Oracle Oci8 Driver 
+=======================
 
 Installation
 ------------
