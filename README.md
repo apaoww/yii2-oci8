@@ -55,10 +55,10 @@ return [
 	],
 ];
 ```
-Custom User Table Migration
+Custom User's Table Migration
 ---------------------------
 
-You may want to create user table using migration. Instead of using yii default migrate, specify custom migrationPath to point to custom user table migration to avoid oracle error. Note: you have to manually add user's table sequence  and primary key trigger using sql developer or toad.
+You may want to create user's table using migration command. Instead of using yii default migrate (yii migrate), specify the custom migrationPath to point to custom user's table migration to avoid oracle error ('ORA-00907: missing right parenthesis). Note: you have to manually add user's table sequence  and primary key trigger using sql developer or toad.
 
 ```
 yii migrate --migrationPath=@apaoww/oci8/migrations
