@@ -11,13 +11,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require apaoww/yii2-oci8 "~1.0"
+php composer.phar require apaoww/yii2-oci8 "dev-master"
 ```
 
 or add
 
 ```
-"apaoww/yii2-oci8": "~1.0"
+"apaoww/yii2-oci8": "dev-master"
 ```
 
 to the require section of your `composer.json` file.
