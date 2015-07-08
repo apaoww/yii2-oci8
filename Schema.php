@@ -9,6 +9,7 @@ use yii\base\InvalidCallException;
 use yii\db\Connection;
 use yii\db\TableSchema;
 use yii;
+
 /**
  * Schema is the class for retrieving metadata from an Oracle database
  *
@@ -148,7 +149,8 @@ EOD;
             if ($c->isPrimaryKey) {
                 $table->primaryKey[] = $c->name;
                 $table->sequenceName = $this->getTableSequenceName($table->name);
-                $c->autoIncrement = true;
+                if (!empty($table->sequenceName))
+                    $c->autoIncrement = true;
             }
         }
         return true;
@@ -161,9 +163,10 @@ EOD;
      * @internal param \yii\db\TableSchema $table ->name the table schema
      * @return string whether the sequence exists
      */
-    protected function getTableSequenceName($tablename){
+    protected function getTableSequenceName($tablename)
+    {
 
-        $seq_name_sql="select ud.referenced_name as sequence_name
+        $seq_name_sql = "select ud.referenced_name as sequence_name
                         from   user_dependencies ud
                                join user_triggers ut on (ut.trigger_name = ud.name)
                         where ut.table_name='{$tablename}'
@@ -185,9 +188,14 @@ EOD;
     {
         if ($this->db->isActive) {
             // get the last insert id from the master connection
-            return $this->db->useMaster(function (Connection $db) use ($sequenceName) {
-                return $db->createCommand("SELECT {$sequenceName}.CURRVAL FROM DUAL")->queryScalar();
-            });
+            if ($sequenceName != null) {
+                return $this->db->useMaster(function (Connection $db) use ($sequenceName) {
+                    return $db->createCommand("SELECT {$sequenceName}.CURRVAL FROM DUAL")->queryScalar();
+                });
+            } else {
+                return '';
+            }
+
         } else {
             throw new InvalidCallException('DB Connection is not active.');
         }
@@ -293,7 +301,7 @@ EOD;
         } elseif (strpos($dbType, 'NUMBER') !== false || strpos($dbType, 'INTEGER') !== false) {
             if (strpos($dbType, '(') && preg_match('/\((.*)\)/', $dbType, $matches)) {
                 $values = explode(',', $matches[1]);
-                if (isset($values[1]) && (((int) $values[1]) > 0)) {
+                if (isset($values[1]) && (((int)$values[1]) > 0)) {
                     $column->type = 'double';
                 } else {
                     $column->type = 'integer';
@@ -319,12 +327,13 @@ EOD;
     {
         if (strpos($dbType, '(') && preg_match('/\((.*)\)/', $dbType, $matches)) {
             $values = explode(',', $matches[1]);
-            $column->size = $column->precision = (int) $values[0];
+            $column->size = $column->precision = (int)$values[0];
             if (isset($values[1])) {
-                $column->scale = (int) $values[1];
+                $column->scale = (int)$values[1];
             }
         }
     }
+
     /**
      * @return \yii\db\ColumnSchema
      * @throws \yii\base\InvalidConfigException
