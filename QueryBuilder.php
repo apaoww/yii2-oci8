@@ -18,7 +18,7 @@ use yii\db\Exception;
  * @extend By Apa oww
  * @since 2.0
  */
-class QueryBuilder extends \yii\db\QueryBuilder
+class QueryBuilder extends \yii\db\oci\QueryBuilder
 {
     /**
      * @var array mapping from abstract column types (keys) to physical column types (values).
