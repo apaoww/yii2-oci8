@@ -320,7 +320,6 @@ class Oci8PDO_Statement extends PDOStatement
     				$result[] = $row;
     			}
     		}
-    		$result = array_filter($result);
     	} elseif($fetch_style === PDO::FETCH_BOTH) {
     		throw new PDOException('PDO::FETCH_BOTH is not implemented for Oci8PDO_Statement::fetchAll()');
     	} elseif($fetch_style === PDO::FETCH_BOUND) {
