@@ -316,7 +316,8 @@ class Oci8PDO_Statement extends PDOStatement
     		oci_fetch_all($this->_sth, $preResult, 0, -1, OCI_FETCHSTATEMENT_BY_COLUMN+OCI_NUM );
     		$result = array();
     		foreach($preResult as $row) {
-    			$result[] = $row[0];
+                if (isset($row[0]))
+    			    $result[] = $row[0];
     		}
     	} elseif($fetch_style === PDO::FETCH_BOTH) {
     		throw new PDOException('PDO::FETCH_BOTH is not implemented for Oci8PDO_Statement::fetchAll()');
