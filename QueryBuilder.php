@@ -227,7 +227,7 @@ EOD;
      * @param array $rows the rows to be batch inserted into the table
      * @return string the batch INSERT SQL statement
      */
-    public function batchInsert($table, $columns, $rows)
+    /*public function batchInsert($table, $columns, $rows)
     {
         if (empty($rows)) {
             return '';
@@ -267,7 +267,7 @@ EOD;
             . ' (' . implode(', ', $columns) . ') VALUES ';
 
         return 'INSERT ALL ' . $tableAndColumns . implode($tableAndColumns, $values) . ' SELECT 1 FROM SYS.DUAL';
-    }
+    }*/
 
     /**
      * @inheritdoc
