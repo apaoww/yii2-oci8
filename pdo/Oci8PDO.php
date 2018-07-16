@@ -59,12 +59,19 @@ class Oci8PDO extends PDO
      * @param array $options
      * @return void
      */
+
+    protected $_role;
+
     public function __construct($dsn,
                                 $username = null,
                                 $password = null,
                                 array $options = array())
     {
-        $parsedDsn = Oci8PDO_Util::parseDsn($dsn, array('dbname', 'charset'));
+        $parsedDsn = Oci8PDO_Util::parseDsn($dsn, array('dbname', 'charset', 'role'));
+
+        if(isset($parsedDsn['role'])) {
+            $this->_role = $parsedDsn['role'];
+        }
 
         if (isset($options[PDO::ATTR_PERSISTENT])
             && $options[PDO::ATTR_PERSISTENT]) {
@@ -112,6 +119,17 @@ class Oci8PDO extends PDO
         if (!is_array($options)) {
             $options = array();
         }
+        //execure role statement before anything else
+
+        if($this->_role)
+        {
+            //echo $this->_role;
+
+            $roleSql = "begin dbms_session.set_role('".$this->_role. "'); end;";
+            $beginRole = @oci_parse($this->_dbh, $roleSql);
+            @oci_execute($beginRole);
+        }
+
 
         return new Oci8PDO_Statement($sth, $this, $options);
     }
