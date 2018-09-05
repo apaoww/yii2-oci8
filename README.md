@@ -48,6 +48,19 @@ return [
                     'dsn' => 'oci8:dbname=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=127.0.0.1)(PORT=1521))(CONNECT_DATA=(SID=xe)));charset=AL32UTF8;',
                     'username' => 'yourdatabaseschemaname',
                     'password' => 'databasepassword',
+		    'on afterOpen' => function($event) {
+
+                /* A session configuration example */
+                $q = <<<SQL
+begin
+  dbms_session.set_role('NAME_OF_YOUR_ROLE_IN_ORACLE');
+  EXCEPTION  -- exception handlers begin
+   WHEN OTHERS THEN  -- handles all other errors
+      ROLLBACK;
+end;
+SQL;
+                $event->sender->createCommand($q)->execute();
+            },
                     'attributes' => []
                 ],
 	],
