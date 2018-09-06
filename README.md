@@ -48,6 +48,9 @@ return [
                     'dsn' => 'oci8:dbname=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=127.0.0.1)(PORT=1521))(CONNECT_DATA=(SID=xe)));charset=AL32UTF8;',
                     'username' => 'yourdatabaseschemaname',
                     'password' => 'databasepassword',
+		    'enableSchemaCache' => true, //increase performance when retrieved table meta data
+            	    'schemaCacheDuration' => 3600,
+            	    'schemaCache' => 'cache',
 		    'on afterOpen' => function($event) {
 
                 /* A session configuration example */

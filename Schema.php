@@ -285,8 +285,9 @@ EOD;
             $rows = $this->db->createCommand($sql, [':tableName' => $table->name, ':schemaName' => $table->schemaName])->queryAll();
             $constraints = [];
             foreach ($rows as $row) {
-                $constraints[$row['constraint_name']]['referenced_table_name'] = $row['REFERENCED_TABLE_NAME'];
-                $constraints[$row['constraint_name']]['columns'][$row['COLUMN_NAME']] = $row['REFERENCED_COLUMN_NAME'];
+
+                $constraints[$row['CONSTRAINT_NAME']]['referenced_table_name'] = $row['REFERENCED_TABLE_NAME'];
+                $constraints[$row['CONSTRAINT_NAME']]['columns'][$row['COLUMN_NAME']] = $row['REFERENCED_COLUMN_NAME'];
             }
             $table->foreignKeys = [];
             foreach ($constraints as $constraint) {

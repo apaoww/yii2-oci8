@@ -13,22 +13,22 @@ class m130524_201442_init extends Migration
             $tableOptions = 'CHARACTER SET utf8 COLLATE utf8_unicode_ci ENGINE=InnoDB';
         }
 
-        $this->createTable('{{%user}}', [
-            'id' => Schema::TYPE_PK,
-            'username' => Schema::TYPE_STRING . ' NOT NULL',
-            'auth_key' => Schema::TYPE_STRING . '(32) NOT NULL',
-            'password_hash' => Schema::TYPE_STRING . ' NOT NULL',
-            'password_reset_token' => Schema::TYPE_STRING,
-            'email' => Schema::TYPE_STRING . ' NOT NULL',
+        $this->createTable('{{%USER}}', [
+            'ID' => Schema::TYPE_PK,
+            'USERNAME' => Schema::TYPE_STRING . ' NOT NULL',
+            'AUTH_KEY' => Schema::TYPE_STRING . '(32) NOT NULL',
+            'PASSWORD_HASH' => Schema::TYPE_STRING . ' NOT NULL',
+            'PASSWORD_RESET_TOKEN' => Schema::TYPE_STRING,
+            'EMAIL' => Schema::TYPE_STRING . ' NOT NULL',
 
-            'status' => Schema::TYPE_SMALLINT . ' NOT NULL',
-            'created_at' => Schema::TYPE_INTEGER . ' NOT NULL',
-            'updated_at' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'STATUS' => Schema::TYPE_SMALLINT . ' NOT NULL',
+            'CREATED_AT' => Schema::TYPE_INTEGER . ' NOT NULL',
+            'UPDATED_AT' => Schema::TYPE_INTEGER . ' NOT NULL',
         ], $tableOptions);
     }
 
     public function down()
     {
-        $this->dropTable('{{%user}}');
+        $this->dropTable('{{%USER}}');
     }
 }
