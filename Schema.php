@@ -103,38 +103,47 @@ class Schema extends \yii\db\Schema
         $schemaName = $table->schemaName;
         $tableName = $table->name;
 
+
+        /*Search contraint only on user_constraint*/
         $sql = <<<EOD
-SELECT a.column_name, a.data_type ||
-    case
-        when data_precision is not null
-            then '(' || a.data_precision ||
-                    case when a.data_scale > 0 then ',' || a.data_scale else '' end
-                || ')'
-        when data_type = 'DATE' then ''
-        when data_type = 'NUMBER' then ''
-        else '(' || to_char(a.data_length) || ')'
-    end as data_type,
-    a.nullable, a.data_default,
-    (   SELECT D.constraint_type
-        FROM ALL_CONS_COLUMNS C
-        inner join ALL_constraints D on D.OWNER = C.OWNER and D.constraint_name = C.constraint_name
-        WHERE C.OWNER = B.OWNER
-           and C.table_name = B.object_name
-           and C.column_name = A.column_name
-           and D.constraint_type = 'P') as Key,
-    com.comments as column_comment
-FROM ALL_TAB_COLUMNS A
-inner join ALL_OBJECTS B ON b.owner = a.owner and ltrim(B.OBJECT_NAME) = ltrim(A.TABLE_NAME)
-LEFT JOIN all_col_comments com ON (A.owner = com.owner AND A.table_name = com.table_name AND A.column_name = com.column_name)
+
+SELECT
+    tc.column_name,
+    tc.data_type,
+    tc.data_precision,
+    tc.data_scale,
+    tc.data_length,
+    tc.nullable,
+    tc.data_default,
+    (
+        SELECT
+            d.constraint_type
+        FROM
+            user_cons_columns c,
+            user_constraints d
+        WHERE
+            c.owner = :schemaName
+            AND d.owner = c.owner
+            AND   d.constraint_name = c.constraint_name
+            AND   c.table_name =:tableName
+            AND   c.column_name = tc.column_name
+            AND   d.constraint_type = 'P'
+    ) AS key,
+    cc.comments column_comment 
+FROM
+    user_col_comments cc
+    JOIN user_tab_columns tc ON cc.column_name = tc.column_name
+                                AND cc.table_name = tc.table_name
 WHERE
-    a.owner = '{$schemaName}'
-    and (b.object_type = 'TABLE' or b.object_type = 'VIEW')
-    and b.object_name = '{$tableName}'
-ORDER by a.column_id
+    cc.table_name = upper(:tablename)
 EOD;
 
+
         try {
-            $columns = $this->db->createCommand($sql)->queryAll();
+            $columns = $this->db->createCommand($sql, [
+                ':tableName' => $table->name,
+                ':schemaName' => $table->schemaName,
+            ])->queryAll();
         } catch (\Exception $e) {
             return false;
         }
@@ -144,6 +153,9 @@ EOD;
         }
 
         foreach ($columns as $column) {
+            if ($this->db->slavePdo->getAttribute(\PDO::ATTR_CASE) === \PDO::CASE_LOWER) {
+                $column = array_change_key_case($column, CASE_UPPER);
+            }
             $c = $this->createColumn($column);
             $table->columns[$c->name] = $c;
             if ($c->isPrimaryKey) {
@@ -237,28 +249,93 @@ EOD;
      */
     protected function findConstraints($table)
     {
+        /*        $sql = <<<EOD
+                SELECT D.constraint_type as CONSTRAINT_TYPE, C.COLUMN_NAME, C.position, D.r_constraint_name,
+                        E.table_name as table_ref, f.column_name as column_ref,
+                        C.table_name
+                FROM ALL_CONS_COLUMNS C
+                inner join ALL_constraints D on D.OWNER = C.OWNER and D.constraint_name = C.constraint_name
+                left join ALL_constraints E on E.OWNER = D.r_OWNER and E.constraint_name = D.r_constraint_name
+                left join ALL_cons_columns F on F.OWNER = E.OWNER and F.constraint_name = E.constraint_name and F.position = c.position
+                WHERE C.OWNER = :schemaName
+                   and C.table_name = :tableName
+                   and D.constraint_type <> 'P'
+                order by d.constraint_name, c.position
+        EOD;*/
+
+        /*Using sub-query on select happend to be faster than using left join*/
         $sql = <<<EOD
-        SELECT D.constraint_type as CONSTRAINT_TYPE, C.COLUMN_NAME, C.position, D.r_constraint_name,
-                E.table_name as table_ref, f.column_name as column_ref,
-                C.table_name
-        FROM ALL_CONS_COLUMNS C
-        inner join ALL_constraints D on D.OWNER = C.OWNER and D.constraint_name = C.constraint_name
-        left join ALL_constraints E on E.OWNER = D.r_OWNER and E.constraint_name = D.r_constraint_name
-        left join ALL_cons_columns F on F.OWNER = E.OWNER and F.constraint_name = E.constraint_name and F.position = c.position
-        WHERE C.OWNER = '{$table->schemaName}'
-           and C.table_name = '{$table->name}'
-           and D.constraint_type <> 'P'
-        order by d.constraint_name, c.position
+SELECT 
+    c.constraint_name,
+    c.column_name,
+    d.r_constraint_name ,
+    (select table_name from all_constraints e where e.constraint_name = d.r_constraint_name) referenced_table_name
+    , (select column_name from all_cons_columns f where f.constraint_name = d.r_constraint_name  AND f.column_name = c.column_name) referenced_column_name
+FROM
+    all_cons_columns c
+    INNER JOIN user_constraints d ON d.owner = c.owner
+                                    AND d.constraint_name = c.constraint_name
+WHERE
+    c.owner = :schemaName
+    AND   c.table_name = :tableName
+    AND   d.constraint_type = 'R'
+    AND   d.owner = :schemaName
 EOD;
-        $command = $this->db->createCommand($sql);
-        foreach ($command->queryAll() as $row) {
-            if ($row['CONSTRAINT_TYPE'] === 'R') {
-                $name = $row["COLUMN_NAME"];
-                $table->foreignKeys[$name] = [$row["TABLE_REF"], $row["COLUMN_REF"]];
+        try {
+            $rows = $this->db->createCommand($sql, [':tableName' => $table->name, ':schemaName' => $table->schemaName])->queryAll();
+            $constraints = [];
+            foreach ($rows as $row) {
+                $constraints[$row['CONSTRAINT_NAME']]['referenced_table_name'] = $row['REFERENCED_TABLE_NAME'];
+                $constraints[$row['CONSTRAINT_NAME']]['columns'][$row['COLUMN_NAME']] = $row['REFERENCED_COLUMN_NAME'];
+            }
+            $table->foreignKeys = [];
+            foreach ($constraints as $constraint) {
+                $table->foreignKeys[] = array_merge(
+                    [$constraint['referenced_table_name']],
+                    $constraint['columns']
+                );
+            }
+        } catch (\Exception $e) {
+            $previous = $e->getPrevious();
+            if (!$previous instanceof \PDOException || strpos($previous->getMessage(), 'SQLSTATE[42S02') === false) {
+                throw $e;
+            }
+
+            // table does not exist, try to determine the foreign keys using the table creation sql
+            $sql = $this->getCreateTableSql($table);
+            $regexp = '/FOREIGN KEY\s+\(([^\)]+)\)\s+REFERENCES\s+([^\(^\s]+)\s*\(([^\)]+)\)/mi';
+            if (preg_match_all($regexp, $sql, $matches, PREG_SET_ORDER)) {
+                foreach ($matches as $match) {
+                    $fks = array_map('trim', explode(',', str_replace('`', '', $match[1])));
+                    $pks = array_map('trim', explode(',', str_replace('`', '', $match[3])));
+                    $constraint = [str_replace('`', '', $match[2])];
+                    foreach ($fks as $k => $name) {
+                        $constraint[$name] = $pks[$k];
+                    }
+                    $table->foreignKeys[md5(serialize($constraint))] = $constraint;
+                }
+                $table->foreignKeys = array_values($table->foreignKeys);
             }
         }
-    }
 
+    }
+/**
+     * Gets the CREATE TABLE sql string.
+     * @param TableSchema $table the table metadata
+     * @return string $sql the result of 'SHOW CREATE TABLE'
+     */
+    protected function getCreateTableSql($table)
+    {
+        $row = $this->db->createCommand("SELECT dbms_metadata.get_ddl('TABLE', :tableName) CREATE_TABLE FROM dual",  [ ":tableName" => $table->name ])->queryOne();
+        if (isset($row['CREATE_TABLE'])) {
+            $sql = $row['CREATE_TABLE'];
+        } else {
+            $row = array_values($row);
+            $sql = $row[1];
+        }
+
+        return $sql;
+    }
     /**
      * @inheritdoc
      */
