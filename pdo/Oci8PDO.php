@@ -59,6 +59,7 @@ class Oci8PDO extends PDO
      * @param array $options
      * @return void
      */
+
     public function __construct($dsn,
                                 $username = null,
                                 $password = null,
@@ -66,6 +67,7 @@ class Oci8PDO extends PDO
     {
         $parsedDsn = Oci8PDO_Util::parseDsn($dsn, array('dbname', 'charset'));
 
+       
         if (isset($options[PDO::ATTR_PERSISTENT])
             && $options[PDO::ATTR_PERSISTENT]) {
 
@@ -112,7 +114,7 @@ class Oci8PDO extends PDO
         if (!is_array($options)) {
             $options = array();
         }
-
+        
         return new Oci8PDO_Statement($sth, $this, $options);
     }
 
