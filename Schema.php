@@ -106,7 +106,6 @@ class Schema extends \yii\db\Schema
 
         /*Search contraint only on user_constraint*/
         $sql = <<<EOD
-
 SELECT
     tc.column_name,
     tc.data_type,
@@ -115,6 +114,8 @@ SELECT
     tc.data_length,
     tc.nullable,
     tc.data_default,
+    /* to identified pk using this sub query quite slow, the only solution is
+    to put PK on column comment as PK will use php strpos to identified PK
     (
         SELECT
             d.constraint_type
@@ -128,21 +129,21 @@ SELECT
             AND   c.table_name =:tableName
             AND   c.column_name = tc.column_name
             AND   d.constraint_type = 'P'
-    ) AS key,
+    ) AS key,*/
     cc.comments column_comment 
 FROM
     user_col_comments cc
     JOIN user_tab_columns tc ON cc.column_name = tc.column_name
                                 AND cc.table_name = tc.table_name
 WHERE
-    cc.table_name = upper(:tablename)
+    cc.table_name = upper(:tableName)
 EOD;
 
 
         try {
             $columns = $this->db->createCommand($sql, [
                 ':tableName' => $table->name,
-                ':schemaName' => $table->schemaName,
+               // ':schemaName' => $table->schemaName,
             ])->queryAll();
         } catch (\Exception $e) {
             return false;
@@ -224,7 +225,7 @@ EOD;
         $c = $this->createColumnSchema();
         $c->name = $column['COLUMN_NAME'];
         $c->allowNull = $column['NULLABLE'] === 'Y';
-        $c->isPrimaryKey = strpos($column['KEY'], 'P') !== false;
+        $c->isPrimaryKey = strpos($column['COLUMN_COMMENT'], 'PK') !== false;
         $c->comment = $column['COLUMN_COMMENT'] === null ? '' : $column['COLUMN_COMMENT'];
 
         $this->extractColumnType($c, $column['DATA_TYPE']);
