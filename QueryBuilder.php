@@ -10,6 +10,7 @@ namespace apaoww\oci8;
 use yii\base\InvalidParamException;
 use yii\db\Connection;
 use yii\db\Exception;
+use yii\db\ExpressionInterface;
 
 /**
  * QueryBuilder is the query builder for Oracle databases.
@@ -180,7 +181,7 @@ EOD;
         } else {
             foreach ($columns as $name => $value) {
                 $names[] = $schema->quoteColumnName($name);
-                if ($value instanceof Expression) {
+                if ($value instanceof ExpressionInterface) {
                     $placeholders[] = $value->expression;
                     foreach ($value->params as $n => $v) {
                         $params[$n] = $v;
