@@ -289,6 +289,16 @@ class Oci8PDO extends PDO
     }
 
     /**
+     * Returns true if the current process is in a transaction
+     *
+     * @return bool
+     */
+    public function inTransaction()
+    {
+        return $this->_isTransaction;
+    }
+
+    /**
      * Retrieve a database connection attribute
      *
      * @return mixed
