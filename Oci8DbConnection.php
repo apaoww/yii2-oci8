@@ -3,12 +3,11 @@ namespace apaoww\oci8;
 
 use yii;
 use yii\db\Connection;
-use apaoww\oci8\pdo\Oci8PDO;
 
 class Oci8DbConnection extends Connection
 {
 
-    public $pdoClass = 'Oci8PDO';
+    public $pdoClass = 'apaoww\oci8\pdo\Oci8PDO';
 
     public $schemaMap = ['oci8'=>'apaoww\oci8\Schema'];
 
