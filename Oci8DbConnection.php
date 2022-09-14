@@ -1,14 +1,15 @@
 <?php
 namespace apaoww\oci8;
-require_once('pdo/Oci8PDO.php');
 
 use yii;
 use yii\db\Connection;
+use apaoww\oci8\pdo\Oci8PDO;
 
 class Oci8DbConnection extends Connection
 {
 
     public $pdoClass = 'Oci8PDO';
+
     public $schemaMap = ['oci8'=>'apaoww\oci8\Schema'];
 
 
