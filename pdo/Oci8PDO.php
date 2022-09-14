@@ -1,6 +1,13 @@
 <?php
 namespace apaoww\oci8\pdo;
 
+use Exception;
+use OCICollection;
+use OCILob;
+use PDO;
+use PDOStatement;
+use apaoww\oci8\pdo\oci8\exceptions\Oci8Exception;
+use apaoww\oci8\pdo\oci8\Statement;
 /**
  * Oci8 class to mimic the interface of the PDO class
  *
