@@ -27,11 +27,11 @@ class Statement extends PDOStatement
     private $sth;
 
     /**
-     * PDO Oci8 connection.
+     * PDO Oci8PDO connection.
      *
-     * @var Oci8
+     * @var Oci8PDO
      */
-    private Oci8 $connection;
+    private Oci8PDO $connection;
 
     /**
      * Flag to convert LOB to string or not.
@@ -114,12 +114,12 @@ class Statement extends PDOStatement
      * Constructor.
      *
      * @param  resource  $sth  Statement handle created with oci_parse()
-     * @param  Oci8  $connection  The Pdo_Oci8 object for this statement
+     * @param  Oci8PDO  $connection  The Pdo_Oci8 object for this statement
      * @param  array  $options  Options for the statement handle
      *
      * @throws Oci8Exception
      */
-    public function __construct($sth, Oci8 $connection, array $options = [])
+    public function __construct($sth, Oci8PDO $connection, array $options = [])
     {
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new Oci8Exception(

@@ -9,7 +9,7 @@ class Oci8DbConnection extends Connection
 
     public $pdoClass = 'apaoww\oci8\pdo\Oci8PDO';
 
-    public $schemaMap = ['oci8'=>'apaoww\oci8\Schema'];
+    public $schemaMap = ['oci'=>'apaoww\oci8\Schema'];
 
 
 

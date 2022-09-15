@@ -1,6 +1,8 @@
 Yii2 Connect Oracle via OCI8
 ============================
 
+This library is based on  [yajra/pdo-via-oci8](https://github.com/yajra/pdo-via-oci8) Version 3 that support PHP 8.1.
+
 Installation
 ------------
 
@@ -45,7 +47,7 @@ return [
 		....
 		'db' => [
                     'class' => 'apaoww\oci8\Oci8DbConnection',
-                    'dsn' => 'oci8:dbname=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=127.0.0.1)(PORT=1521))(CONNECT_DATA=(SID=xe)));charset=AL32UTF8;',
+                    'dsn' => 'oci:dbname=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=127.0.0.1)(PORT=1521))(CONNECT_DATA=(SID=xe)));charset=AL32UTF8;',
                     'username' => 'yourdatabaseschemaname',
                     'password' => 'databasepassword',
 		    'enableSchemaCache' => true, //increase performance when retrieved table meta data
