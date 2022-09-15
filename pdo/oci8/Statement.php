@@ -113,9 +113,9 @@ class Statement extends PDOStatement
     /**
      * Constructor.
      *
-     * @param  resource  $sth  Statement handle created with oci_parse()
-     * @param  Oci8PDO  $connection  The Pdo_Oci8 object for this statement
-     * @param  array  $options  Options for the statement handle
+     * @param resource $sth Statement handle created with oci_parse()
+     * @param Oci8PDO $connection The Pdo_Oci8 object for this statement
+     * @param array $options Options for the statement handle
      *
      * @throws Oci8Exception
      */
@@ -123,7 +123,7 @@ class Statement extends PDOStatement
     {
         if (strtolower(get_resource_type($sth)) != 'oci8 statement') {
             throw new Oci8Exception(
-                'Resource expected of type oci8 statement; '.get_resource_type($sth).' received instead'
+                'Resource expected of type oci8 statement; ' . get_resource_type($sth) . ' received instead'
             );
         }
 
@@ -142,11 +142,11 @@ class Statement extends PDOStatement
      *
      * @link https://php.net/manual/en/pdostatement.setfetchmode.php
      *
-     * @param  int  $mode  <p>
+     * @param int $mode <p>
      *                     The fetch mode must be one of the PDO::FETCH_* constants.
      *                     </p>
-     * @param  null  $className
-     * @param  ?string  ...$params  <p> Constructor arguments. </p>
+     * @param null $className
+     * @param  ?string ...$params <p> Constructor arguments. </p>
      * @return bool <b>TRUE</b> on success or <b>FALSE</b> on failure.
      */
     public function setFetchMode($mode, $className = null, ...$params): bool
@@ -177,7 +177,7 @@ class Statement extends PDOStatement
                 $this->fetchIntoObject = null;
                 break;
             case PDO::FETCH_INTO:
-                if (! is_object($modeArg)) {
+                if (!is_object($modeArg)) {
                     throw new Oci8Exception(
                         '$modeArg must be instance of an object'
                     );
@@ -190,7 +190,7 @@ class Statement extends PDOStatement
                 break;
             case PDO::FETCH_COLUMN:
                 $this->fetchMode = $mode;
-                $this->fetchColNo = (int) $modeArg;
+                $this->fetchColNo = (int)$modeArg;
                 $this->fetchClassName = '\stdClass';
                 $this->fetchCtorArgs = [];
                 $this->fetchIntoObject = null;
@@ -205,13 +205,13 @@ class Statement extends PDOStatement
     /**
      * Binds a column to a PHP variable.
      *
-     * @param  mixed  $column  Number of the column (1-indexed) or name of the
+     * @param mixed $column Number of the column (1-indexed) or name of the
      *                         column in the result set. If using the column name, be aware that the
      *                         name should match the case of the column, as returned by the driver.
-     * @param  mixed  $var
-     * @param  int  $type
-     * @param  int|null  $maxLength  A hint for pre-allocation.
-     * @param  mixed|null  $driverOptions
+     * @param mixed $var
+     * @param int $type
+     * @param int|null $maxLength A hint for pre-allocation.
+     * @param mixed|null $driverOptions
      * @return bool TRUE on success or FALSE on failure.
      *
      * @todo Implement this functionality by creating a table map of the
@@ -221,23 +221,24 @@ class Statement extends PDOStatement
      */
     public function bindColumn(
         string|int $column,
-        mixed &$var,
-        int $type = PDO::PARAM_STR,
-        int|null $maxLength = 0,
-        mixed $driverOptions = null
-    ): bool {
+        mixed      &$var,
+        int        $type = PDO::PARAM_STR,
+        int|null   $maxLength = 0,
+        mixed      $driverOptions = null
+    ): bool
+    {
         throw new Oci8Exception('bindColumn has not been implemented');
     }
 
     /**
      * Binds a value to a parameter.
      *
-     * @param  int|string  $parameter  Parameter identifier. For a prepared statement
+     * @param int|string $parameter Parameter identifier. For a prepared statement
      *                                 using named placeholders, this will be a parameter name of the form
      *                                 :name. For a prepared statement using question mark placeholders, this
      *                                 will be the 1-indexed position of the parameter.
-     * @param  mixed  $variable  The value to bind to the parameter.
-     * @param  int  $dataType  Explicit data type for the parameter using the
+     * @param mixed $variable The value to bind to the parameter.
+     * @param int $dataType Explicit data type for the parameter using the
      *                         PDO::PARAM_* constants.
      * @return bool TRUE on success or FALSE on failure.
      */
@@ -249,18 +250,18 @@ class Statement extends PDOStatement
     /**
      * Binds a parameter to the specified variable name.
      *
-     * @param  int|string  $parameter  Parameter identifier. For a prepared statement
+     * @param int|string $parameter Parameter identifier. For a prepared statement
      *                                 using named placeholders, this will be a parameter name of the form
      *                                 :name. For a prepared statement using question mark placeholders, this
      *                                 will be the 1-indexed position of the parameter.
-     * @param  mixed  $variable  Name of the PHP variable to bind to the SQL
+     * @param mixed $variable Name of the PHP variable to bind to the SQL
      *                           statement parameter.
-     * @param  int  $dataType  Explicit data type for the parameter using the
+     * @param int $dataType Explicit data type for the parameter using the
      *                         PDO::PARAM_* constants.
-     * @param  int|null  $maxLength  Length of the data type. To indicate that a
+     * @param int|null $maxLength Length of the data type. To indicate that a
      *                               parameter is an OUT parameter from a stored procedure, you must
      *                               explicitly set the length.
-     * @param  array  $options  [optional]
+     * @param array $options [optional]
      * @return bool TRUE on success or FALSE on failure.
      *
      * @todo Map PDO datatypes to oci8 datatypes and implement support for
@@ -268,17 +269,18 @@ class Statement extends PDOStatement
      */
     public function bindParam(
         int|string $parameter,
-        mixed &$variable,
-        int $dataType = PDO::PARAM_STR,
-        int $maxLength = null,
-        mixed $options = null
-    ): bool {
+        mixed      &$variable,
+        int        $dataType = PDO::PARAM_STR,
+        int        $maxLength = null,
+        mixed      $options = null
+    ): bool
+    {
         // strip INOUT type for oci
         $dataType &= ~PDO::PARAM_INPUT_OUTPUT;
 
         // Replace the first @oci8param to a pseudo named parameter
         if (is_numeric($parameter)) {
-            $parameter = ':p'.intval($parameter - 1);
+            $parameter = ':p' . intval($parameter - 1);
         }
 
         // Adapt the type
@@ -373,23 +375,24 @@ class Statement extends PDOStatement
      *
      * @see  http://php.net/manual/en/function.oci-bind-array-by-name.php
      *
-     * @param  int|string  $parameter  The Oracle placeholder.
-     * @param  array  $variable  An array.
-     * @param  int  $maxTableLength  Sets the maximum length both for incoming and result arrays.
-     * @param  int|null  $maxItemLength  Sets maximum length for array items.
+     * @param int|string $parameter The Oracle placeholder.
+     * @param array $variable An array.
+     * @param int $maxTableLength Sets the maximum length both for incoming and result arrays.
+     * @param int|null $maxItemLength Sets maximum length for array items.
      *                                   If not specified or equals to -1, oci_bind_array_by_name() will find
      *                                   the longest element in the incoming array and will use it as the maximum
      *                                   length.
-     * @param  int  $type  Explicit data type for the parameter using the
+     * @param int $type Explicit data type for the parameter using the
      * @return bool TRUE on success or FALSE on failure.
      */
     public function bindArray(
         int|string $parameter,
-        array &$variable,
-        int $maxTableLength,
-        int $maxItemLength = null,
-        int $type = SQLT_CHR
-    ): bool {
+        array      &$variable,
+        int        $maxTableLength,
+        int        $maxItemLength = null,
+        int        $type = SQLT_CHR
+    ): bool
+    {
         $this->bindings[] = $variable;
 
         return oci_bind_array_by_name($this->sth, $parameter, $variable, $maxTableLength, $maxItemLength, $type);
@@ -408,7 +411,7 @@ class Statement extends PDOStatement
     /**
      * Returns a single column from the next row of a result set.
      *
-     * @param  int|null  $colNumber  0-indexed number of the column you wish to retrieve
+     * @param int|null $colNumber 0-indexed number of the column you wish to retrieve
      *                               from the row. If no value is supplied, it fetches the first column.
      * @return string Returns a single column in the next row of a result set.
      */
@@ -425,18 +428,18 @@ class Statement extends PDOStatement
     /**
      * Fetches the next row from a result set.
      *
-     * @param  int|null  $fetchMode  Controls how the next row will be returned to
+     * @param int|null $fetchMode Controls how the next row will be returned to
      *                               the caller. This value must be one of the PDO::FETCH_* constants,
      *                               defaulting to value of PDO::ATTR_DEFAULT_FETCH_MODE (which defaults to
      *                               PDO::FETCH_BOTH).
-     * @param  int  $cursorOrientation  For a PDOStatement object representing a
+     * @param int $cursorOrientation For a PDOStatement object representing a
      *                                  scrollable cursor, this value determines which row will be returned to
      *                                  the caller. This value must be one of the PDO::FETCH_ORI_* constants,
      *                                  defaulting to PDO::FETCH_ORI_NEXT. To request a scrollable cursor for
      *                                  your PDOStatement object, you must set the PDO::ATTR_CURSOR attribute
      *                                  to PDO::CURSOR_SCROLL when you prepare the SQL statement with
      *                                  PDO::prepare.
-     * @param  int  $cursorOffset  [optional]
+     * @param int $cursorOffset [optional]
      * @return mixed The return value of this function on success depends on the
      *               fetch type. In all cases, FALSE is returned on failure.
      *
@@ -447,9 +450,10 @@ class Statement extends PDOStatement
      */
     public function fetch(
         ?int $fetchMode = null,
-        int $cursorOrientation = PDO::FETCH_ORI_NEXT,
-        int $cursorOffset = 0
-    ): mixed {
+        int  $cursorOrientation = PDO::FETCH_ORI_NEXT,
+        int  $cursorOffset = 0
+    ): mixed
+    {
         // If not fetchMode was specified, used the default value of or the mode
         // set by the last call to setFetchMode()
         if ($fetchMode === null) {
@@ -604,7 +608,7 @@ class Statement extends PDOStatement
     /**
      * Retrieve a statement attribute.
      *
-     * @param  int  $attribute
+     * @param int $attribute
      * @return mixed The attribute value.
      */
     public function getAttribute(int $attribute): mixed
@@ -619,7 +623,7 @@ class Statement extends PDOStatement
     /**
      * Load a LOB object value.
      *
-     * @param  mixed  $lob
+     * @param mixed $lob
      * @return mixed
      */
     private function loadLob(mixed $lob): mixed
@@ -636,7 +640,7 @@ class Statement extends PDOStatement
      *
      * @link https://php.net/manual/en/pdostatement.fetchall.php
      *
-     * @param  int|null  $mode  [optional] <p>
+     * @param int|null $mode [optional] <p>
      *                          Controls the contents of the returned array as documented in
      *                          <b>PDOStatement::fetch</b>.
      *                          Defaults to value of <b>PDO::ATTR_DEFAULT_FETCH_MODE</b>
@@ -658,7 +662,7 @@ class Statement extends PDOStatement
      *                          column, bitwise-OR <b>PDO::FETCH_COLUMN</b> with
      *                          <b>PDO::FETCH_GROUP</b>.
      *                          </p>
-     * @param  mixed  ...$args  <p>
+     * @param mixed ...$args <p>
      *                          Arguments of custom class constructor when the <i>fetch_style</i>
      *                          parameter is <b>PDO::FETCH_CLASS</b>.
      *                          </p>
@@ -687,7 +691,7 @@ class Statement extends PDOStatement
 
         $this->results = [];
         while ($row = $this->fetch()) {
-            $mangledObj = get_mangled_object_vars((object) $row);
+            $mangledObj = get_mangled_object_vars((object)$row);
 
             if ((is_array($row) || is_object($row)) && is_resource(reset($mangledObj))) {
                 $stmt = new self(reset($mangledObj), $this->connection, $this->options);
@@ -707,7 +711,7 @@ class Statement extends PDOStatement
     /**
      * Executes a prepared statement.
      *
-     * @param  array|null  $inputParams  An array of values with as many elements as
+     * @param array|null $inputParams An array of values with as many elements as
      *                                   there are bound parameters in the SQL statement being executed.
      * @return bool TRUE on success or FALSE on failure
      */
@@ -736,7 +740,7 @@ class Statement extends PDOStatement
             }
         }
 
-        if (! $this->connection->inTransaction() && count($this->blobObjects) > 0) {
+        if (!$this->connection->inTransaction() && count($this->blobObjects) > 0) {
             $this->connection->commit();
         }
 
@@ -744,11 +748,11 @@ class Statement extends PDOStatement
             $e = oci_error($this->sth);
 
             $message = '';
-            $message = $message.'Error Code    : '.$e['code'].PHP_EOL;
-            $message = $message.'Error Message : '.$e['message'].PHP_EOL;
-            $message = $message.'Position      : '.$e['offset'].PHP_EOL;
-            $message = $message.'Statement     : '.$e['sqltext'].PHP_EOL;
-            $message = $message.'Bindings      : ['.$this->displayBindings().']'.PHP_EOL;
+            $message = $message . 'Error Code    : ' . $e['code'] . PHP_EOL;
+            $message = $message . 'Error Message : ' . $e['message'] . PHP_EOL;
+            $message = $message . 'Position      : ' . $e['offset'] . PHP_EOL;
+            $message = $message . 'Statement     : ' . $e['sqltext'] . PHP_EOL;
+            $message = $message . 'Bindings      : [' . $this->displayBindings() . ']' . PHP_EOL;
 
             throw new Oci8Exception($message, $e['code']);
         }
@@ -770,7 +774,7 @@ class Statement extends PDOStatement
             } elseif (is_array($binding)) {
                 $bindings[] = 'Array';
             } else {
-                $bindings[] = (string) $binding;
+                $bindings[] = (string)$binding;
             }
         }
 
@@ -780,8 +784,8 @@ class Statement extends PDOStatement
     /**
      * Fetches the next row and returns it as an object.
      *
-     * @param  string|null  $className
-     * @param  array|null  $ctorArgs
+     * @param string|null $className
+     * @param array|null $ctorArgs
      * @return false|object
      *
      * @throws \ReflectionException
@@ -834,8 +838,8 @@ class Statement extends PDOStatement
     /**
      * Sets a statement attribute.
      *
-     * @param  int  $attribute
-     * @param  mixed  $value
+     * @param int $attribute
+     * @param mixed $value
      * @return true on success or FALSE on failure.
      */
     public function setAttribute(int $attribute, mixed $value): bool
@@ -870,7 +874,7 @@ class Statement extends PDOStatement
      *     precision
      *     pdo_type.
      *
-     * @param  int  $column  The 0-indexed column in the result set.
+     * @param int $column The 0-indexed column in the result set.
      * @return array An associative array containing the above metadata values
      *               for a single column.
      */
