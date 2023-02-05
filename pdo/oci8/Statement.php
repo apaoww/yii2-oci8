@@ -9,7 +9,7 @@ use PDOStatement;
 use ReflectionClass;
 use ReflectionException;
 use apaoww\oci8\pdo\Oci8PDO;
-use apaoww\oci8\Pdo\oci8\exceptions\Oci8Exception;
+use apaoww\oci8\pdo\oci8\exceptions\Oci8Exception;
 
 /**
  * Oci8 Statement class to mimic the interface of the PDOStatement class
