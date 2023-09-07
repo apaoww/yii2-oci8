@@ -66,6 +66,7 @@ end;
 SQL;
                 $event->sender->createCommand($q)->execute();
             },
+                    // To convert column name to lower case
                     'schemaMap' => ['oci' => 'apaoww\oci8\ESchemaOci',],
     			'attributes' => [
 	//                PDO::ATTR_STRINGIFY_FETCHES => true,
