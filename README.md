@@ -1,7 +1,7 @@
 Yii2 Connect Oracle via OCI8
 ============================
 
-This library is based on  [yajra/pdo-via-oci8](https://github.com/yajra/pdo-via-oci8) Version 3 that support PHP 8.1.
+This library is based on  [yajra/pdo-via-oci8](https://github.com/yajra/pdo-via-oci8) Version 3 that support PHP 8.2.
 
 Installation
 ------------
