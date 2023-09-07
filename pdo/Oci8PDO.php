@@ -402,7 +402,7 @@ class Oci8PDO extends PDO
      *
      * @see  PDOStatement::setFetchMode For a full description of the second and following parameters.
      */
-    public function query(string $query, ?int $fetchMode = PDO::FETCH_INTO, object $object): PDOStatement
+    public function query(string $query, ?int $fetchMode = PDO::FETCH_INTO, object $object): PDOStatement|false
     {
         $stmt = $this->prepare($statement);
         $stmt->execute();
