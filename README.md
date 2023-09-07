@@ -66,8 +66,12 @@ end;
 SQL;
                 $event->sender->createCommand($q)->execute();
             },
-                    'attributes' => []
-                ],
+                    'schemaMap' => ['oci' => 'apaoww\oci8\ESchemaOci',],
+    			'attributes' => [
+	//                PDO::ATTR_STRINGIFY_FETCHES => true,
+			        PDO::ATTR_CASE => PDO::CASE_LOWER,
+			    ],
+	                ],
 	],
 ];
 ```
